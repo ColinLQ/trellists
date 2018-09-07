@@ -9,6 +9,8 @@
 
 (function() {
 
+  var DOM = {}
+
   // http://stackoverflow.com/a/7616484
   String.prototype.hashCode = function() {
     var hash = 0, i, chr, len;
@@ -52,7 +54,9 @@
           // By default all lists are shown.
           $(this).addClass((listShowStatus != null) ? listShowStatus : "show-list");
           if (listShowStatus == 'hide-list') {
-            $(this).hide();
+            // $(this).hide();
+            var hash = listName.hashCode();
+            DOM['data-child_' + hash] = $(this).hide().find('.list-cards').remove();
           }
           else {
             $(this).show();
@@ -176,10 +180,15 @@
           if (getListName($(this))) {
             if (allButtonPrevStatus == 'show-all') {
               $(this).addClass('hide-list').removeClass('show-list').hide();
+              // $list.addClass('hide-list').removeClass('show-list').hide();
+              var hash = $list.attr('data-list-name');
+              DOM['data-child_' + hash] = $list.find('.list-cards').remove();
               localStorage.setItem("trellists-" + listName, "hide-list");
             }
             else if (allButtonPrevStatus == 'hide-all') {
-              $(this).addClass('show-list').removeClass('hide-list').show();
+              // $(this).addClass('show-list').removeClass('hide-list').show();
+              var hash = $list.attr('data-list-name');
+              $(this).addClass('show-list').removeClass('hide-list').show().find('.list-header').after(DOM['data-child_' + hash]);
               localStorage.setItem("trellists-" + listName, "show-list");
             }
           }
@@ -187,6 +196,7 @@
         // Rebuild menu to set correct status.
         renderMenu();
       }
+      // }
       else {
         // List tab was clicked.
         var $list = $("#board .list-wrapper[data-list-name='" + button +"']");
@@ -200,6 +210,8 @@
         //TODO: use jQuery .toggle instead code below.
         if (listShowStatus == 'show-list') {
           // Hide related list
+          // $list.addClass('hide-list').removeClass('show-list').hide();
+          DOM['data-child_' + button] = $list.find('.list-cards').remove();
           $list.addClass('hide-list').removeClass('show-list').hide();
           // Update current tab.
           $(this).addClass('hide-list').removeClass('show-list');
@@ -207,7 +219,8 @@
           allTab.text('Show all').removeClass('show-all').addClass('hide-all');
         } else if (listShowStatus == 'hide-list') {
           // Show related list
-          $list.addClass('show-list').removeClass('hide-list').show();
+          // $list.addClass('show-list').removeClass('hide-list').show();
+          $list.addClass('show-list').removeClass('hide-list').show().find('.list-header').after(DOM['data-child_' + button]);
           // Update current tab.
           $(this).addClass('show-list').removeClass('hide-list');
           // Change 'Show all/Hide all' button.
