@@ -41,29 +41,31 @@
       element: '.list-wrapper'
     }],
     callback: function() {
-      if (!$('#trellists').length) {
-        $('<ul/>').attr('id', 'trellists').appendTo('.board-header');
-      }
-      // Restore state of each List.
-      $('.list-wrapper').each(function() {
-        var listName = getListName($(this));
-        // There is an empty list (placeholder for new lists) and we should skip it.
-        if (listName) {
-          // Get previously stored status of this list from LocalStorage.
-          var listShowStatus = localStorage.getItem("trellists-" + listName);
-          // By default all lists are shown.
-          $(this).addClass((listShowStatus != null) ? listShowStatus : "show-list");
-          if (listShowStatus == 'hide-list') {
-            // $(this).hide();
-            var hash = listName.hashCode();
-            DOM['data-child_' + hash] = $(this).hide().find('.list-cards').remove();
-          }
-          else {
-            $(this).show();
-          }
+      setTimeout(function() {
+        if (!$('#trellists').length) {
+          $('<ul/>').attr('id', 'trellists').appendTo('.board-header');
         }
-      });
-      renderMenu();
+        // Restore state of each List.
+        $('.list-wrapper').each(function() {
+          var listName = getListName($(this));
+          // There is an empty list (placeholder for new lists) and we should skip it.
+          if (listName) {
+            // Get previously stored status of this list from LocalStorage.
+            var listShowStatus = localStorage.getItem("trellists-" + listName);
+            // By default all lists are shown.
+            $(this).addClass((listShowStatus != null) ? listShowStatus : "show-list");
+            if (listShowStatus == 'hide-list') {
+              // $(this).hide();
+              var hash = listName.hashCode();
+              DOM['data-child_' + hash] = $(this).hide().find('.list-cards').remove();
+            }
+            else {
+              $(this).show();
+            }
+          }
+        });
+        renderMenu();
+      }, 0);
     }
   });
 
