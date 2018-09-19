@@ -13,11 +13,12 @@
 
   // http://stackoverflow.com/a/7616484
   String.prototype.hashCode = function() {
-    var hash = 0, i, chr, len;
+    var hash = 0,
+      i, chr, len;
     if (this.length === 0) return hash;
     for (i = 0, len = this.length; i < len; i++) {
-      chr   = this.charCodeAt(i);
-      hash  = ((hash << 5) - hash) + chr;
+      chr = this.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
       hash |= 0; // Convert to 32bit integer
     }
     return hash;
@@ -25,13 +26,13 @@
 
   // This code was copied from trello's all.js file.
   // https://d78fikflryjgj.cloudfront.net/js/0e1c2ed27cb817938de179d9d36a9043/all.js
-  function calcBoardLayout(){
-    var b,e,c,f;
-    f=$(window).height();
-    c=$("#header").outerHeight();
-    b=$(".header-banner:visible").outerHeight();
-    e=this.$(".board-header").outerHeight();
-    this.$(".board-canvas").height(f-(c+b+e));
+  function calcBoardLayout() {
+    var b, e, c, f;
+    f = $(window).height();
+    c = $("#header").outerHeight();
+    b = $(".header-banner:visible").outerHeight();
+    e = this.$(".board-header").outerHeight();
+    this.$(".board-canvas").height(f - (c + b + e));
     //this.calcSidebarHeight();
   };
 
@@ -58,8 +59,7 @@
               // $(this).hide();
               var hash = listName.hashCode();
               DOM['data-child_' + hash] = $(this).hide().find('.list-cards').remove();
-            }
-            else {
+            } else {
               $(this).show();
             }
           }
@@ -69,6 +69,27 @@
     }
   });
 
+  $('.window-wrapper .card-detail-window').waitUntilExists(function() {
+    // 添加复制链接按钮
+    var $input = $('<input>').val(decodeURI(window.location.href)).css({
+      position: 'absolute',
+      top: 0,
+      zIndex: -1,
+      opacity: 0
+    });
+
+    var $btnDOM = $('<div id="copyUrl">').addClass('button-link').append('<span class="icon-sm icon-card">').append('<span>Copy URL<span>').append($input);
+
+    $(this).find('.window-sidebar .other-actions .card-detail-section-mini-buttons').append($btnDOM);
+
+    $btnDOM.click(function(event) {
+      var input = $input[0]
+      input.focus();
+      input.select();
+      document.execCommand('Copy', false, null);
+      input.blur();
+    });
+  })
 
   // Update  list name on change. Already optimized.
   $('.list-wrapper h2.list-header-name').waitUntilExists(function() {
@@ -126,23 +147,21 @@
         // Set default status 'show-list' and change it only if actual List has status.
         if ($(this).hasClass('show-list')) {
           $(tab).addClass('show-list');
-          shownTabs ++;
-        }
-        else if ($(this).hasClass('hide-list')) {
+          shownTabs++;
+        } else if ($(this).hasClass('hide-list')) {
           $(tab).addClass('hide-list');
-          hiddenTabs ++;
-        }
-        else {
+          hiddenTabs++;
+        } else {
           // for just created lists
           $(tab).addClass('show-list');
-          shownTabs ++;
+          shownTabs++;
         }
         li += tab[0].outerHTML;
       }
     });
 
     // Create the tab in Menu for current List.
-    var tab = $('<li/>').attr('data-tab-name', 'all').text('Hide all').addClass('show-all');
+    var tab = $('<li/>').attr('data-tab-name', 'all').text('Show all').addClass('hide-all');
     if (hiddenTabs == 0 && shownTabs != 0) {
       tab.text('Hide all').removeClass('hide-all').addClass('show-all');
     }
@@ -158,8 +177,6 @@
     // If number of list are huge we need to manually resize window so 'Add new card...' widget
     // and horizontall scroll bar will be shown at the bottom.
     calcBoardLayout();
-
-
 
     // Hides/shows List on click at tab.
     // We need to attach onClick behaviour for newly created tabs just after they was added to DOM
@@ -186,11 +203,11 @@
               var hash = $list.attr('data-list-name');
               DOM['data-child_' + hash] = $list.find('.list-cards').remove();
               localStorage.setItem("trellists-" + listName, "hide-list");
-            }
-            else if (allButtonPrevStatus == 'hide-all') {
+            } else if (allButtonPrevStatus == 'hide-all') {
               // $(this).addClass('show-list').removeClass('hide-list').show();
               var hash = $list.attr('data-list-name');
               $(this).addClass('show-list').removeClass('hide-list').show().find('.list-header').after(DOM['data-child_' + hash]);
+              delete DOM['data-child_' + hash];
               localStorage.setItem("trellists-" + listName, "show-list");
             }
           }
@@ -201,7 +218,7 @@
       // }
       else {
         // List tab was clicked.
-        var $list = $("#board .list-wrapper[data-list-name='" + button +"']");
+        var $list = $("#board .list-wrapper[data-list-name='" + button + "']");
         var listShowStatus = ($list.hasClass("show-list") ? "show-list" : "hide-list");
         var listName = getListName($list);
         var allTab = $('#trellists li[data-tab-name=all]');
@@ -223,12 +240,16 @@
           // Show related list
           // $list.addClass('show-list').removeClass('hide-list').show();
           $list.addClass('show-list').removeClass('hide-list').show().find('.list-header').after(DOM['data-child_' + button]);
+          delete DOM['data-child_' + button];
+
           // Update current tab.
           $(this).addClass('show-list').removeClass('hide-list');
           // Change 'Show all/Hide all' button.
-          allTab.text('Hide all').removeClass('hide-all').addClass('show-all');
+          if ($('#trellists .hide-list').length === 0) {
+            allTab.text('Hide all').removeClass('hide-all').addClass('show-all');
+          }
         }
       }
     }); // 'click' event handler ends here
   };
-}) ();
+})();
